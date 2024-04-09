@@ -1,0 +1,160 @@
+{
+    "wall_25.png": {
+        "top": [
+            "wall_25.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png",
+            "background_dark_0.png"
+        ],
+        "right":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "ledge_1.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "left":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "down":[
+            "wall_25.png",
+            "pillar_0.png",
+            "box_0.png",
+            "background_dark_0.png"
+        ]
+    },
+
+    "spike_0.png": {
+        "top": [
+            "background_dark_0.png"
+        ],
+        "right":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "left":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "down":[
+            "wall_25.png"
+        ]
+    },
+
+    "pillar_0.png": {
+        "top": [
+            "background_dark_0.png"
+        ],
+        "right":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "left":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "down":[
+            "wall_25.png"
+        ]
+    },
+
+    "ledge_1.png": {
+        "top": [
+            "background_dark_0.png",
+            "box_0.png"
+        ],
+        "right":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "left":[
+            "wall_25.png"
+        ],
+        "down":[
+            "background_dark_0.png",
+        ]
+    },
+
+    "box_0.png": {
+        "top": [
+            "wall_25.png",
+            "background_dark_0.png",
+            "box_0.png"
+        ],
+        "right":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "left":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "box_0.png"
+        ],
+        "down":[
+            "wall_25.png",
+            "ledge_1.png",
+            "box_0.png"
+        ]
+    },
+
+    "background_dark_0.png": {
+        "top": [
+            "background_dark_0.png",
+            "box_0.png",
+            "ledge_1.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "wall_25.png"
+        ],
+        "right":[
+            "background_dark_0.png",
+            "box_0.png",
+            "ledge_1.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "wall_25.png"
+        ],
+        "left":[
+            "background_dark_0.png",
+            "box_0.png",
+            "ledge_1.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "wall_25.png"
+        ],
+        "down":[
+            "background_dark_0.png",
+            "box_0.png",
+            "ledge_1.png",
+            "pillar_0.png",
+            "spike_0.png",
+            "wall_25.png"
+        ]
+    }
+}
