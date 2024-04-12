@@ -4,8 +4,9 @@ import json
 import random
 import numpy as np
 
-canvas_height, canvas_width = 10,10
+canvas_height, canvas_width = 8,8
 tile_size = 64
+MAX_COUNTER = 10000
 
 with open('rules.json') as f:
     rules = json.load(f)
@@ -14,11 +15,28 @@ entropy_grid = [[0.0 for _ in range(canvas_width)] for _ in range(canvas_height)
 grid = [[[] for _ in range(canvas_width)] for _ in range(canvas_height)]
 
 def calculate_entropy(num_states: int) -> float:
+    """
+    Calculate the entropy of a cell using the Shannon entropy formula [ HSh = -Σp*log(p) ]
+
+    Parameters:
+    - num_states: The number of states in superposition.
+
+    Returns:
+    The entropy of a cell.
+    """
+
     p = 1 / num_states
     entropy = -sum(p * math.log2(p) for _ in range(num_states))
     return entropy
 
 def get_min_entropy_cell() -> tuple[int,int]:
+    """
+    Find the cell coordinates with the lowest entropy to collapse next
+
+    Returns:
+    The coordinates of the cell with least entropy.
+    """
+
     min_ent_cell = (0,0)
     min_ent = float('inf')
 
@@ -30,6 +48,10 @@ def get_min_entropy_cell() -> tuple[int,int]:
     return min_ent_cell
 
 def init() -> None:
+    """
+    Initialize the grid with the superposition of all states
+    """
+
     global entropy_grid, grid
 
     all_possible_states = [
@@ -38,7 +60,9 @@ def init() -> None:
         "pillar_0.png",
         "ledge_1.png",
         "box_0.png",
-        "background_dark_0.png"
+        "background_dark_0.png",
+        "chain_1.png",
+        "chain_0.png"
     ]
 
     for i in range(canvas_height):
@@ -61,6 +85,13 @@ def display_ent_grid() -> None:
     print("-"*50)
 
 def render_grid() -> np.ndarray:
+    """
+    Render the collapsed grid 2-D array using the tile images
+
+    Returns:
+    The canvas array on which all tiles are drawn.
+    """
+
     canvas_height = len(grid) * tile_size
     canvas_width = len(grid[0]) * tile_size
 
@@ -86,6 +117,17 @@ def render_grid() -> np.ndarray:
     return canvas
 
 def direction(dx: int, dy: int) -> str:
+    """
+    Return the direction for change in coordinates. This is used to check possible states in the rules.json file
+
+    Parameters:
+    - dx: The change in row.
+    - dy: The change in column.
+
+    Returns:
+    The direction to check in.
+    """
+        
     if dx == -1 and dy == 0:
         return "top"
     elif dx == 1 and dy == 0:
@@ -99,6 +141,17 @@ def direction(dx: int, dy: int) -> str:
         return "unknown"
 
 def get_possible_states(coords: tuple[int,int], dir: str) -> list[str]:
+    """
+    Return the list of possible states in the rules.json file for a direction
+
+    Parameters:
+    - coords: The index of the cell.
+    - dir: The direction to check for possible states.
+
+    Returns:
+    The possible states that for the given cell in the given direction.
+    """
+        
     x,y = coords
     possible_states = []
 
@@ -110,6 +163,10 @@ def get_possible_states(coords: tuple[int,int], dir: str) -> list[str]:
 
 
 def valid_direcs(coords: tuple[int,int]) -> list[tuple[int,int]]:
+    """
+    Return the list of neighbouring cells
+    """
+        
     x,y = coords
     possible_dirs = []
 
@@ -125,7 +182,10 @@ def valid_direcs(coords: tuple[int,int]) -> list[tuple[int,int]]:
     return possible_dirs
 
 def constrain(coords: tuple[int, int], impossible_state) -> None:
-
+    """
+    Remove the impossible state from a given cells superposition
+    """
+        
     global grid, entropy_grid
 
     x,y = coords
@@ -187,8 +247,6 @@ def wave_function_collapse() -> None:
         coords = get_min_entropy_cell()
         collapse_at(coords)
         propogate_constraints(coords)
-
-MAX_COUNTER = 100
 
 while True:
     init()
