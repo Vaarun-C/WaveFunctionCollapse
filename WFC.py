@@ -35,7 +35,11 @@ def calculate_entropy(num_states: int) -> float:
 
 def get_min_entropy_cell() -> tuple[int,int]:
     """
-    Find the cell coordinates with the lowest entropy to collapse next
+    Find the cell coordinates with the lowest entropy to collapse next.
+    This cell is chosen because it represents least uncertainty.
+
+    Parameters:
+    None
 
     Returns:
     tuple[int, int]: The coordinates of the cell with least entropy.
@@ -53,7 +57,14 @@ def get_min_entropy_cell() -> tuple[int,int]:
 
 def init() -> None:
     """
-    Initialize the grid with the superposition of all states
+    Initialize the grid with all cells set to a superposition of all possible states ( Highest entropy ). Initially all states are equally probable.
+    This function sets up the initial state of the grid for the Wave Function Collapse algorithm.
+
+    Parameters:
+    None
+
+    Returns:
+    None
     """
 
     global entropy_grid, grid
@@ -68,7 +79,13 @@ def init() -> None:
             
 def display_grid() -> None:
     """
-    Display the state grid.
+    This function prints the current state of the grid to the console in a tabular format.
+
+    Parameters:
+    None
+
+    Returns:
+    None
     """
 
     for i in range(canvas_height):
@@ -79,7 +96,13 @@ def display_grid() -> None:
 
 def display_ent_grid() -> None:
     """
-    Display the entropy grid.
+    This function prints the current entropies of the cells in the grid to the console in a tabular format.
+
+    Parameters:
+    None
+
+    Returns:
+    None
     """
     
     for i in range(canvas_height):
@@ -90,10 +113,15 @@ def display_ent_grid() -> None:
 
 def render_grid() -> np.ndarray:
     """
-    Render the collapsed grid 2-D array using the tile images
+    Render the rendering tile images onto a canvas array.
+    Each cell in the grid corresponds to a tile image, which is retrieved from the "tileset" directory.
+    The canvas array is then filled with these tile images, appropriately resized and positioned based on the grid.
+
+    Parameters:
+    None
 
     Returns:
-    np.ndarray: The canvas array on which all tiles are drawn.
+    np.ndarray: A 3-dimensional NumPy array representing the rendered canvas.
     """
 
     canvas_height_pixels = canvas_height * tile_size
@@ -122,14 +150,15 @@ def render_grid() -> np.ndarray:
 
 def direction(dx: int, dy: int) -> str:
     """
-    Return the direction for change in coordinates. This is used to check possible states in the rules.json file
+    Map the change in row and column to a cardinal direction,
+    which is used to check possible states in the rules.json file.
 
     Parameters:
     - dx (int): The change in row.
     - dy (int): The change in column.
 
     Returns:
-    str: The direction to check in.
+    str: The direction to corresponding to change in coordinates.
 
     Raises:
     ValueError: If the delta values do not correspond to a valid direction.
@@ -149,11 +178,13 @@ def direction(dx: int, dy: int) -> str:
 
 def get_possible_states(coords: tuple[int,int], direction: str) -> list[str]:
     """
-    Return the list of possible states in the rules.json file for a direction
+    Retrieve the list of possible states for a cell in a given direction, based on the rules.
+    The function returns a list of all possible states that the cell can collapse to,
+    considering the neighboring cells and their current states.
 
     Parameters:
-    - coords (tuple[int, int]): The index of the cell.
-    - dir (str): The direction to check for possible states.
+    - coords (tuple[int, int]): The coordinates of the cell in the grid.
+    - direction (str): The direction to check for possible states.
 
     Returns:
     list[str]: The possible states that for the given cell in the given direction.
@@ -171,13 +202,15 @@ def get_possible_states(coords: tuple[int,int], direction: str) -> list[str]:
 
 def valid_direcs(coords: tuple[int,int]) -> list[tuple[int,int]]:
     """
-    Return the list of neighboring cells.
+    Return the list of neighboring cells surrounding a given cell.
+    The neighboring cells are those immediately adjacent to the specified cell,
+    excluding diagonal neighbors and any cells outside the grid boundaries.
 
     Parameters:
     - coords (tuple[int, int]): The coordinates of the cell.
 
     Returns:
-    list[tuple[int, int]]: The neighboring cells.
+    list[tuple[int, int]]: The list containing the coordinates of neighboring cells.
     """
         
     x, y = coords
@@ -196,11 +229,15 @@ def valid_direcs(coords: tuple[int,int]) -> list[tuple[int,int]]:
 
 def constrain(coords: tuple[int, int], state_to_remove: str) -> None:
     """
-    Remove the impossible state from a given cell's superposition.
+    This function updates the superposition of a cell in the grid by removing a state
+    that is determined to be impossible based on the rules and constraints of the system.
 
     Parameters:
     - coords (tuple[int, int]): The index of the cell.
-    - state_to_remove (str): The state to remove.
+    - state_to_remove (str): The state to be removed from the cell's superposition.
+
+    Returns:
+    None
     """
         
     global grid, entropy_grid
@@ -214,9 +251,14 @@ def constrain(coords: tuple[int, int], state_to_remove: str) -> None:
 def propogate_constraints(coords: tuple[int,int]) -> None:
     """
     Propogate the constraints to the other cells in the grid until there are no changes to be propogated.
+    Constraints are propagated using a DFS algorithm and causes the neighbouring cells to update their superpositions
+    based on the rules.
 
     Parameters:
-    - coords (tuple[int, int]): The index of the cell that was recently changed.
+    - coords (tuple[int, int]): The coordinates of the cell that was recently changed.
+
+    Returns:
+    None
     """
 
     stack = []
@@ -241,10 +283,13 @@ def propogate_constraints(coords: tuple[int,int]) -> None:
 
 def collapse_at(coords: tuple[int,int]) -> None:
     """
-    Collapse all the possibilites of the state at the coordinates provided to a single possibility
+    Collapse the superposition of a cell to a single state randomly chosen from the possible states.
 
     Parameters:
-    - coords (tuple[int, int]): The index of the cell to be collapsed.
+    - coords (tuple[int, int]): The coordinates of the cell to be collapsed.
+
+    Returns:
+    None
     """
 
     global grid, entropy_grid
@@ -252,11 +297,19 @@ def collapse_at(coords: tuple[int,int]) -> None:
     x,y = coords
     collapsed_state = random.choice(grid[x][y])
     grid[x][y] = [collapsed_state]
+
+    # Entropy now becomes 0 as there is only 1 state and no uncertainty
     entropy_grid[x][y] = 0.0
 
 def is_wave_collapsed() -> bool:
     """
     Check if all states have collapsed ( Entropy of system is 0 )
+
+    Parameters:
+    None
+
+    Returns:
+    bool: True if the wave function is fully collapsed, False otherwise.
     """
     global entropy_grid
 
@@ -269,6 +322,14 @@ def is_wave_collapsed() -> bool:
 def reached_valid_state() -> bool:
     """
     Check if we have reached a valid state ( All cells have 1 possibility )
+    If any cell has no remaining possible states (empty superposition), 
+    the function returns False, indicating that an invalid state has been reached.
+
+    Parameters:
+    None
+
+    Returns:
+    bool: True if a valid state has been reached, False otherwise.
     """
     global grid
 
@@ -280,9 +341,17 @@ def reached_valid_state() -> bool:
 
 def wave_function_collapse() -> None:
     """
-    Apply the Wave Function Collapse (WFC) algorithm to collapse the wave function until it is fully collapsed.
+    Apply the Wave Function Collapse (WFC) algorithm to fully collapse the wave function.
 
-    The function operates on the global `grid` and `entropy_grid` arrays.
+    The function operates on the global `grid` and `entropy_grid` arrays and
+    continues collapsing the wave function until all states have collapsed,
+    as determined by the `is_wave_collapsed` function.
+
+    Parameters:
+    None
+
+    Returns:
+    None
     """
 
     global grid, entropy_grid
