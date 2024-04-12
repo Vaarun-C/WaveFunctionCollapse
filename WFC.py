@@ -3,8 +3,9 @@ import math
 import json
 import random
 import numpy as np
+import os
 
-canvas_height, canvas_width = 8,8
+canvas_height, canvas_width = 13,13
 tile_size = 64
 MAX_COUNTER = 10000
 
@@ -19,11 +20,14 @@ def calculate_entropy(num_states: int) -> float:
     Calculate the entropy of a cell using the Shannon entropy formula [ HSh = -Σp*log(p) ]
 
     Parameters:
-    - num_states: The number of states in superposition.
+    - num_states (int): The number of states in superposition.
 
     Returns:
-    The entropy of a cell.
+    (float): The entropy of a cell.
     """
+
+    if num_states <= 1:
+        return 0
 
     p = 1 / num_states
     entropy = -sum(p * math.log2(p) for _ in range(num_states))
@@ -34,7 +38,7 @@ def get_min_entropy_cell() -> tuple[int,int]:
     Find the cell coordinates with the lowest entropy to collapse next
 
     Returns:
-    The coordinates of the cell with least entropy.
+    tuple[int, int]: The coordinates of the cell with least entropy.
     """
 
     min_ent_cell = (0,0)
@@ -42,7 +46,7 @@ def get_min_entropy_cell() -> tuple[int,int]:
 
     for i in range(canvas_height):
         for j in range(canvas_width):
-            if (entropy_grid[i][j] < min_ent) and (abs(entropy_grid[i][j])//1 > 0.0): # Skip the already collapsed cells
+            if (entropy_grid[i][j] < min_ent) and (abs(entropy_grid[i][j]) // 1 > 0.0): # Skip the already collapsed cells
                 min_ent_cell = (i,j)
                 min_ent = entropy_grid[i][j]
     return min_ent_cell
@@ -54,48 +58,48 @@ def init() -> None:
 
     global entropy_grid, grid
 
-    all_possible_states = [
-        "wall_25.png",
-        "spike_0.png",
-        "pillar_0.png",
-        "ledge_1.png",
-        "box_0.png",
-        "background_dark_0.png",
-        "chain_1.png",
-        "chain_0.png"
-    ]
+    all_possible_states = os.listdir("tileset")
+    initial_entropy = calculate_entropy(len(all_possible_states))
 
     for i in range(canvas_height):
         for j in range(canvas_width):
-            entropy_grid[i][j] = calculate_entropy(len(all_possible_states))
+            entropy_grid[i][j] = initial_entropy
             grid[i][j] = all_possible_states
             
 def display_grid() -> None:
+    """
+    Display the state grid.
+    """
+
     for i in range(canvas_height):
         for j in range(canvas_width):
             print(grid[i][j], end="\t")
         print()
-    print("*"*50)
+    print("*" * 50)
 
 def display_ent_grid() -> None:
+    """
+    Display the entropy grid.
+    """
+    
     for i in range(canvas_height):
         for j in range(canvas_width):
             print(entropy_grid[i][j], end="\t")
         print()
-    print("-"*50)
+    print("-" * 50)
 
 def render_grid() -> np.ndarray:
     """
     Render the collapsed grid 2-D array using the tile images
 
     Returns:
-    The canvas array on which all tiles are drawn.
+    np.ndarray: The canvas array on which all tiles are drawn.
     """
 
-    canvas_height = len(grid) * tile_size
-    canvas_width = len(grid[0]) * tile_size
+    canvas_height_pixels = canvas_height * tile_size
+    canvas_width_pixels = canvas_width * tile_size
 
-    canvas = 255 * np.ones((canvas_height, canvas_width, 3), dtype=np.uint8)
+    canvas = 255 * np.ones((canvas_height_pixels, canvas_width_pixels, 3), dtype=np.uint8)
 
     for i in range(len(grid)):
         for j in range(len(grid[i])):
@@ -121,42 +125,45 @@ def direction(dx: int, dy: int) -> str:
     Return the direction for change in coordinates. This is used to check possible states in the rules.json file
 
     Parameters:
-    - dx: The change in row.
-    - dy: The change in column.
+    - dx (int): The change in row.
+    - dy (int): The change in column.
 
     Returns:
-    The direction to check in.
+    str: The direction to check in.
+
+    Raises:
+    ValueError: If the delta values do not correspond to a valid direction.
     """
         
-    if dx == -1 and dy == 0:
-        return "top"
-    elif dx == 1 and dy == 0:
-        return "down"
-    elif dx == 0 and dy == -1:
-        return "left"
-    elif dx == 0 and dy == 1:
-        return "right"
-    else:
-        print(dx,dy)
-        return "unknown"
+    directions = {
+        (-1, 0): "top",
+        (1, 0): "down",
+        (0, -1): "left",
+        (0, 1): "right",
+    }
 
-def get_possible_states(coords: tuple[int,int], dir: str) -> list[str]:
+    result = directions.get((dx, dy)) # type: ignore ( Here we are ignoring the type check as it raises a value error anyway. )
+    if result is None:
+        raise ValueError(f"Unknown direction: delta_row={dx}, delta_column={dy}")
+    return result
+
+def get_possible_states(coords: tuple[int,int], direction: str) -> list[str]:
     """
     Return the list of possible states in the rules.json file for a direction
 
     Parameters:
-    - coords: The index of the cell.
-    - dir: The direction to check for possible states.
+    - coords (tuple[int, int]): The index of the cell.
+    - dir (str): The direction to check for possible states.
 
     Returns:
-    The possible states that for the given cell in the given direction.
+    list[str]: The possible states that for the given cell in the given direction.
     """
         
     x,y = coords
     possible_states = []
 
     for state in grid[x][y]:
-        for poss_neigh in rules[state][dir]:
+        for poss_neigh in rules[state][direction]:
             if poss_neigh not in possible_states:
                 possible_states.append(poss_neigh)
     return possible_states
@@ -164,48 +171,68 @@ def get_possible_states(coords: tuple[int,int], dir: str) -> list[str]:
 
 def valid_direcs(coords: tuple[int,int]) -> list[tuple[int,int]]:
     """
-    Return the list of neighbouring cells
+    Return the list of neighboring cells.
+
+    Parameters:
+    - coords (tuple[int, int]): The coordinates of the cell.
+
+    Returns:
+    list[tuple[int, int]]: The neighboring cells.
     """
         
-    x,y = coords
-    possible_dirs = []
+    x, y = coords
+    neighboring_cells = []
 
-    if (x-1)>=0:
-        possible_dirs.append((-1,0))
-    if (x+1)<canvas_height:
-        possible_dirs.append((+1,0))
-    if (y-1)>=0:
-        possible_dirs.append((0,-1))
-    if (y+1)<canvas_width:
-        possible_dirs.append((0,+1))
+    if (x - 1) >= 0:
+        neighboring_cells.append((-1, 0))
+    if (x + 1) < canvas_height:
+        neighboring_cells.append((+1, 0))
+    if (y - 1) >= 0:
+        neighboring_cells.append((0, -1))
+    if (y + 1) < canvas_width:
+        neighboring_cells.append((0, +1))
 
-    return possible_dirs
+    return neighboring_cells
 
-def constrain(coords: tuple[int, int], impossible_state) -> None:
+def constrain(coords: tuple[int, int], state_to_remove: str) -> None:
     """
-    Remove the impossible state from a given cells superposition
+    Remove the impossible state from a given cell's superposition.
+
+    Parameters:
+    - coords (tuple[int, int]): The index of the cell.
+    - state_to_remove (str): The state to remove.
     """
         
     global grid, entropy_grid
 
     x,y = coords
     current_possibilities = grid[x][y][:]
-    current_possibilities.remove(impossible_state)
+    current_possibilities.remove(state_to_remove)
     grid[x][y] = current_possibilities
-    entropy_grid[x][y] = calculate_entropy(max(len(current_possibilities),1))
+    entropy_grid[x][y] = calculate_entropy(len(current_possibilities))
 
 def propogate_constraints(coords: tuple[int,int]) -> None:
+    """
+    Propogate the constraints to the other cells in the grid until there are no changes to be propogated.
+
+    Parameters:
+    - coords (tuple[int, int]): The index of the cell that was recently changed.
+    """
+
     stack = []
     stack.append(coords)
 
     while len(stack)>0:
         curr_coords = stack.pop(-1)
         x,y = curr_coords
+
+        # Iterate over valid neighboring directions
         for dx,dy in valid_direcs(curr_coords):
-            nx,ny = x+dx, y+dy
+            nx,ny = x + dx, y + dy
             neigh_states = grid[nx][ny][:]
             possible_states = get_possible_states(curr_coords, direction(dx,dy))
 
+            # Constrain neighbor states based on possible states
             for possibile_neigh_state in neigh_states:
                 if possibile_neigh_state not in possible_states:
                     constrain((nx,ny), possibile_neigh_state)
@@ -213,16 +240,24 @@ def propogate_constraints(coords: tuple[int,int]) -> None:
                         stack.append((nx,ny))
 
 def collapse_at(coords: tuple[int,int]) -> None:
+    """
+    Collapse all the possibilites of the state at the coordinates provided to a single possibility
+
+    Parameters:
+    - coords (tuple[int, int]): The index of the cell to be collapsed.
+    """
 
     global grid, entropy_grid
 
     x,y = coords
-    chosen_state = random.choice(grid[x][y])
-    grid[x][y] = [chosen_state]
+    collapsed_state = random.choice(grid[x][y])
+    grid[x][y] = [collapsed_state]
     entropy_grid[x][y] = 0.0
 
 def is_wave_collapsed() -> bool:
-
+    """
+    Check if all states have collapsed ( Entropy of system is 0 )
+    """
     global entropy_grid
 
     for row in entropy_grid:
@@ -232,6 +267,9 @@ def is_wave_collapsed() -> bool:
     return True
 
 def reached_valid_state() -> bool:
+    """
+    Check if we have reached a valid state ( All cells have 1 possibility )
+    """
     global grid
 
     for row in grid:
@@ -241,6 +279,11 @@ def reached_valid_state() -> bool:
     return True
 
 def wave_function_collapse() -> None:
+    """
+    Apply the Wave Function Collapse (WFC) algorithm to collapse the wave function until it is fully collapsed.
+
+    The function operates on the global `grid` and `entropy_grid` arrays.
+    """
 
     global grid, entropy_grid
     while not is_wave_collapsed():
@@ -248,24 +291,25 @@ def wave_function_collapse() -> None:
         collapse_at(coords)
         propogate_constraints(coords)
 
-while True:
-    init()
-    wave_function_collapse()
+if __name__ == "__main__":
+    while True:
+        init()
+        wave_function_collapse()
 
-    if reached_valid_state():
-        break
-
-    if MAX_COUNTER <= 0:
+        if reached_valid_state():
             break
 
-    MAX_COUNTER -= 1
+        if MAX_COUNTER <= 0:
+            break
 
-    print("REACHED INVALID:", MAX_COUNTER)
+        MAX_COUNTER -= 1
 
-if MAX_COUNTER == 0:
-    quit()
+        print("REACHED INVALID:", MAX_COUNTER)
 
-canvas = render_grid()
-cv.imshow("Grid", canvas)
-cv.waitKey(0)
-cv.destroyAllWindows()
+    if MAX_COUNTER == 0:
+        raise RuntimeError("Wave Function Collapse failed to converge to a valid state")
+
+    canvas = render_grid()
+    cv.imshow("Grid", canvas)
+    cv.waitKey(0)
+    cv.destroyAllWindows()
