@@ -5,9 +5,10 @@ import random
 import numpy as np
 import os
 
-canvas_height, canvas_width = 6,6
+canvas_height, canvas_width = 14,17
 tile_size = 64
 MAX_COUNTER = 10000
+display_execution = False
 
 with open('rules.json') as f:
     rules = json.load(f)
@@ -392,7 +393,9 @@ def wave_function_collapse() -> None:
         coords = get_min_entropy_cell()
         collapse_at(coords)
         propogate_constraints(coords)
-        display_state_grid()
+
+        if display_execution:
+            display_state_grid()
 
 def start_execution() -> None:
     """
