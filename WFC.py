@@ -5,7 +5,7 @@ import random
 import numpy as np
 import os
 
-canvas_height, canvas_width = 13,13
+canvas_height, canvas_width = 6,6
 tile_size = 64
 MAX_COUNTER = 10000
 
@@ -111,6 +111,26 @@ def display_ent_grid() -> None:
         print()
     print("-" * 50)
 
+def display_state_grid():
+    """
+    Display the current state grid using OpenCV.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+
+    Raises:
+    KeyboardInterrupt: If the user presses 'q' to stop the execution.
+    """
+    canvas = render_grid()
+    cv.imshow("Grid", canvas)
+    key = cv.waitKey(1)  # Add a small delay to display the grid
+    if(key == ord('q')):
+        raise KeyboardInterrupt
+    cv.destroyAllWindows()
+
 def render_grid() -> np.ndarray:
     """
     Render the rendering tile images onto a canvas array.
@@ -131,22 +151,35 @@ def render_grid() -> np.ndarray:
 
     for i in range(len(grid)):
         for j in range(len(grid[i])):
-            image_name ,= grid[i][j]
-            if image_name:
+            cell_states = grid[i][j]
+            if len(cell_states) == 1:  # Only one state, render the image
+                image_name = cell_states[0]
                 image_path = f"tileset/{image_name}"
                 image = cv.imread(image_path)
+
                 if image is not None:
                     # Resize image to tile size
                     image = cv.resize(image, (tile_size, tile_size))
+
                     # Calculate coordinates for rendering
                     start_x = j * tile_size
                     start_y = i * tile_size
                     end_x = start_x + tile_size
                     end_y = start_y + tile_size
+
                     # Render image onto canvas
                     canvas[start_y:end_y, start_x:end_x] = image
 
+            else:  # Multiple states, render white image with entropy as text
+                entropy = entropy_grid[i][j]
+                text = f"{entropy:.2f}"
+                text_size = cv.getTextSize(text, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)[0]
+                text_x = (tile_size - text_size[0]) // 2
+                text_y = (tile_size + text_size[1]) // 2
+                cv.putText(canvas, text, (j * tile_size + text_x, i * tile_size + text_y), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv.LINE_AA)
+
     return canvas
+
 
 def direction(dx: int, dy: int) -> str:
     """
@@ -359,11 +392,35 @@ def wave_function_collapse() -> None:
         coords = get_min_entropy_cell()
         collapse_at(coords)
         propogate_constraints(coords)
+        display_state_grid()
 
-if __name__ == "__main__":
+def start_execution() -> None:
+    """
+    Start the execution of the Wave Function Collapse algorithm.
+
+    This function initializes the grid and repeatedly applies the Wave Function Collapse algorithm
+    until a valid solution is reached, or until the maximum counter is reached, or until the user interrupts.
+
+    Parameters:
+    None
+
+    Returns:
+    None
+
+    Raises:
+    RuntimeError: If the Wave Function Collapse fails to converge to a valid state within the maximum counter limit.
+    """
+
+    global MAX_COUNTER
     while True:
         init()
-        wave_function_collapse()
+
+        # User stops execution in the middle
+        try:
+            wave_function_collapse()
+        except KeyboardInterrupt:
+            print("Execution stopped by User")
+            break
 
         if reached_valid_state():
             break
@@ -380,5 +437,10 @@ if __name__ == "__main__":
 
     canvas = render_grid()
     cv.imshow("Grid", canvas)
-    cv.waitKey(0)
+    key = cv.waitKey(0)
     cv.destroyAllWindows()
+    if key == ord('r'):
+        start_execution()
+
+if __name__ == "__main__":
+    start_execution()

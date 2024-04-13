@@ -14,6 +14,7 @@
             "background_dark_0.png",
             "ledge_1.png",
             "pillar_0.png",
+            "pillar_1.png",
             "spike_0.png",
             "box_0.png",
             "box_1.png",
@@ -25,6 +26,7 @@
             "wall_25.png",
             "background_dark_0.png",
             "pillar_0.png",
+            "pillar_1.png",
             "spike_0.png",
             "box_0.png",
             "box_1.png",
@@ -37,7 +39,8 @@
             "box_0.png",
             "box_1.png",
             "background_dark_0.png",
-            "chain_1.png"
+            "chain_1.png",
+            "pillar_1.png"
         ]
     },
 
@@ -49,6 +52,7 @@
             "wall_25.png",
             "background_dark_0.png",
             "pillar_0.png",
+            "pillar_1.png",
             "spike_0.png",
             "box_0.png",
             "box_1.png"
@@ -57,6 +61,7 @@
             "wall_25.png",
             "background_dark_0.png",
             "pillar_0.png",
+            "pillar_1.png",
             "spike_0.png",
             "box_0.png",
             "box_1.png"
@@ -91,6 +96,33 @@
         ]
     },
 
+    "pillar_1.png": {
+        "top": [
+            "wall_25.png"
+        ],
+        "right":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "pillar_1.png",
+            "spike_0.png",
+            "box_0.png",
+            "box_1.png"
+        ],
+        "left":[
+            "wall_25.png",
+            "background_dark_0.png",
+            "pillar_0.png",
+            "pillar_1.png",
+            "spike_0.png",
+            "box_0.png",
+            "box_1.png"
+        ],
+        "down":[
+            "background_dark_0.png"
+        ]
+    },
+
     "ledge_1.png": {
         "top": [
             "background_dark_0.png",
@@ -122,6 +154,7 @@
             "wall_25.png",
             "background_dark_0.png",
             "pillar_0.png",
+            "pillar_1.png",
             "spike_0.png",
             "box_0.png",
             "box_1.png"
@@ -130,6 +163,7 @@
             "wall_25.png",
             "background_dark_0.png",
             "pillar_0.png",
+            "pillar_1.png",
             "spike_0.png",
             "box_0.png",
             "box_1.png"
@@ -153,6 +187,7 @@
             "wall_25.png",
             "background_dark_0.png",
             "pillar_0.png",
+            "pillar_1.png",
             "spike_0.png",
             "box_0.png",
             "box_1.png"
@@ -161,6 +196,7 @@
             "wall_25.png",
             "background_dark_0.png",
             "pillar_0.png",
+            "pillar_1.png",
             "spike_0.png",
             "box_0.png",
             "box_1.png"
@@ -179,7 +215,8 @@
             "ledge_1.png",
             "wall_25.png",
             "chain_1.png",
-            "chain_0.png"
+            "chain_0.png",
+            "pillar_1.png"
         ],
         "right":[
             "background_dark_0.png",
